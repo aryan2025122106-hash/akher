@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe6e6;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+            max-width: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .gif-container img, .gif-container video {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        #yesBtn:hover {
+            background-color: #ff2a52;
+        }
+
+        #noBtn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .success-message {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .success-message h2 {
+            color: #ff4d6d;
+            font-size: 2.5rem;
+            margin-top: 20px;
+        }
+
+        /* Heart Rain Animation */
+        .heart {
+            position: absolute;
+            color: #ff4d6d;
+            top: -10vh; /* Start above the screen */
+            font-size: 2rem;
+            animation: fall linear forwards; /* 'forwards' keeps them at the bottom after falling */
+            z-index: 5;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainCard">
+        <div class="gif-container">
+            <img src="img1.jpeg" alt="My Photo" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzM0dnV5bm84bm5iNXV4bm14b3I4b3J5bm14b3I4b3J5bm14b3I4b3J5/MDJ5bW84bm5iNXV4bm14b3I4b3J5bm14b3I4b3J5/giphy.gif'">
+        </div>
+        <h1>Will you be my Valentine? 💖</h1>
+        <div class="btn-group">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
+    </div>
+
+    <div class="container success-message" id="successCard">
+        <div class="gif-container">
+            <video autoplay loop muted playsinline>
+                <source src="hehe.mp4" type="video/mp4">
+            </video>
+        </div>
+        <h2>Yay! I knew you'd say yes! 🥰</h2>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const mainCard = document.getElementById('mainCard');
+        const successCard = document.getElementById('successCard');
+
+        const noTexts = [
+            "No", "Are you sure?", "Really sure?", "Think again!", "Last chance!", 
+            "Surely not?", "You might regret this!", "Give it another thought!", 
+            "Are you absolutely certain?", "This could be a mistake!", "Have a heart!", 
+            "Don't be so cold!", "Change of heart?", "Wouldn't you reconsider?", 
+            "Is that your final answer?", "You're breaking my heart ;("
+        ];
+
+        let i = 0;
+        let fontSize = 20;
+
+        // No Button Logic
+        noBtn.addEventListener('click', () => {
+            i++;
+            if (i < noTexts.length) {
+                noBtn.innerText = noTexts[i];
+            } else {
+                noBtn.innerText = "Just Click Yes!";
+            }
+            fontSize += 20;
+            yesBtn.style.fontSize = fontSize + "px";
+            const currentPadding = 15 + i * 5; 
+            yesBtn.style.padding = `${currentPadding}px ${currentPadding * 2}px`;
+
+            const yesTexts = ["Yes", "Yes!", "YES!!", "YESSS!!!", "PLEASE YES!"];
+            if (i < yesTexts.length) {
+                yesBtn.innerText = yesTexts[i];
+            } else {
+                yesBtn.innerText = "YES 💖";
+            }
+        });
+
+        // Yes Button Logic
+        yesBtn.addEventListener('click', () => {
+            mainCard.style.display = 'none';
+            successCard.style.display = 'flex';
+            
+            // 1. Trigger Confetti
+            triggerConfetti();
+
+            // 2. Start Heart Rain
+            createHeartRain();
+        });
+
+        // Function to trigger the confetti explosion
+        function triggerConfetti() {
+            const duration = 3000; // 3 seconds
+            const end = Date.now() + duration;
+
+            // Shoot confetti from both sides
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff4d6d', '#ffccd5', '#ffffff'] // Valentine colors
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff4d6d', '#ffccd5', '#ffffff']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        // Function to create falling hearts
+        function createHeartRain() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + "vw"; // Random horizontal position
+                heart.style.animationDuration = Math.random() * 2 + 3 + "s"; // Random fall speed
+                heart.style.fontSize = Math.random() * 20 + 20 + "px"; // Random size
+                
+                document.body.appendChild(heart);
+
+                // Remove heart after it falls out of view to keep browser fast
+                setTimeout(() => {
+                    heart.remove();
+                }, 5000);
+            }, 100); // Create a new heart every 0.1 seconds
+        }
+    </script>
+</body>
+</html>
